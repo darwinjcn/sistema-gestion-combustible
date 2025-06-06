@@ -37,6 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # Apps instaladas
+    'rest_framework',  # Django REST Framework
+    
+    # Tu app
+    'combustible_api',
 ]
 
 MIDDLEWARE = [
@@ -74,11 +80,14 @@ WSGI_APPLICATION = 'proyecto.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db_combustible',       # Nombre de tu base de datos
+        'USER': 'admin_combustible',   # Usuario de PostgreSQL
+        'PASSWORD': 'claveSegura123',     # Contraseña
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
