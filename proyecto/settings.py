@@ -82,8 +82,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'db_combustible',       # Nombre de tu base de datos
-        'USER': 'admin_combustible',   # Usuario de PostgreSQL
-        'PASSWORD': 'claveSegura123',     # Contraseña
+        'USER': 'postgres',   # Usuario de PostgreSQL
+        'PASSWORD': '',     # Contraseña
         'HOST': 'localhost',
         'PORT': '5432',
     }
