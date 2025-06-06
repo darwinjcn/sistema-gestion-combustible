@@ -2,9 +2,11 @@ node_modules
 
 
 # Byte-compiled / optimized / DLL files
-__pycache__/
+proyecto/__pycache__/
 *.py[cod]
 *$py.class
+*.pyo
+*.pyd
 
 # C extensions
 *.so
