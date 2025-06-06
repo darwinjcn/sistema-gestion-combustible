@@ -18,8 +18,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from combustible_api.views import home  # Importamos la nueva vista
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('combustible_api.urls')),
+    path('', home),  # Vista principal
 ]

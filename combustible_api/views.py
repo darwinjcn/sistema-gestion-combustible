@@ -6,6 +6,10 @@ from .serializers import GeneradorSerializer, ConsumoSerializer
 from django.http import JsonResponse, HttpResponse
 from django.views import View
 
+
+def home(request):
+    return HttpResponse("¡Bienvenido al Sistema Web de Gestión de Combustible - CANTV Lara!")
+
 # --- Vistas para la API REST ---
 class GeneradorViewSet(viewsets.ModelViewSet):
     """
