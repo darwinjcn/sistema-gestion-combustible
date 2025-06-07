@@ -1,64 +1,72 @@
 // components/ListadoGeneradores.js
+
 import React, { useEffect, useState } from 'react';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import axios from 'axios';
 
 const ListadoGeneradores = () => {
   const [generadores, setGeneradores] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchGeneradores = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/generadores/');
-        setGeneradores(response.data);
-      } catch (error) {
-        console.error("Error al obtener los generadores:", error);
+        const response = await axios.get('http://localhost:8000/api/generadores/');
+        setGeneradores(response.data || []);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error al obtener los generadores:", err);
+        setError("No se pudieron cargar los datos de los generadores.");
+        setLoading(false);
       }
     };
 
     fetchGeneradores();
   }, []);
 
+  if (loading) return <p>Cargando datos...</p>;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+
   return (
-    <Paper elevation={3}>
-      <TableContainer>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Modelo</TableCell>
-              <TableCell>Capacidad (L)</TableCell>
-              <TableCell>Nivel Actual (L)</TableCell>
-              <TableCell>Estado</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {generadores.length > 0 ? (
-              generadores.map((gen) => (
-                <TableRow key={gen.id}>
-                  <TableCell>{gen.id}</TableCell>
-                  <TableCell>{gen.modelo}</TableCell>
-                  <TableCell>{gen.capacidad_tanque}</TableCell>
-                  <TableCell>{gen.nivel_actual || 'N/A'}</TableCell>
-                  <TableCell>
-                    {gen.nivel_actual < 300 && gen.nivel_actual !== null ? (
-                      <span style={{ color: 'red', fontWeight: 'bold' }}>⚠️ Bajo</span>
-                    ) : (
-                      <span style={{ color: 'green' }}>✔️ Normal</span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} align="center">
-                  Cargando datos...
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>ID</TableCell>
+            <TableCell>Modelo</TableCell>
+            <TableCell>Capacidad (L)</TableCell>
+            <TableCell>Nivel Actual (L)</TableCell>
+            <TableCell>Estado</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {generadores.length > 0 ? (
+            generadores.map((gen) => (
+              <TableRow key={gen.id}>
+                <TableCell>{gen.id}</TableCell>
+                <TableCell>{gen.modelo}</TableCell>
+                <TableCell>{gen.capacidad_tanque}</TableCell>
+                <TableCell>{gen.nivel_actual || 'N/A'}</TableCell>
+                <TableCell>
+                  {gen.nivel_actual < 300 && gen.nivel_actual !== null ? (
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>⚠️ Bajo</span>
+                  ) : (
+                    <span style={{ color: 'green' }}>✔️ Normal</span>
+                  )}
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={5} align="center">
+                No hay datos disponibles o ocurrió un error.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 
