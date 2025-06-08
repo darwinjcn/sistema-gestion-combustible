@@ -1,34 +1,33 @@
-// src/App.js
-
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { Container, AppBar, Toolbar, Typography, Button } from '@mui/material'; // Importa Button aquí
 import IngresoDatos from './components/IngresoDatos';
 import ListadoGeneradores from './components/ListadoGeneradores';
 import AlertaSimulada from './components/AlertaSimulada';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
 
 function App() {
   return (
     <Router>
-      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif' }}>
         {/* Barra de navegación */}
         <AppBar position="static" color="primary">
           <Toolbar>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
               Sistema Web de Gestión de Combustible - CANTV Lara
             </Typography>
-            <Button color="inherit">Inicio</Button>
-            <Button color="inherit">Reportes</Button>
+            <Button color="inherit" component={Link} to="/" sx={{ mx: 1 }}>
+              Inicio
+            </Button>
+            <Button color="inherit" component={Link} to="/reportes" sx={{ mx: 1 }}>
+              Reportes
+            </Button>
           </Toolbar>
         </AppBar>
 
         {/* Contenido principal */}
-        <Box sx={{ p: 2, flex: 1 }}>
+        <Container maxWidth="lg" style={{ marginTop: '30px', marginBottom: '50px' }}>
           <Routes>
-            {/* Página Principal */}
+            {/* Vista Principal */}
             <Route path="/" element={
               <>
                 <Typography variant="h5" gutterBottom>Ingreso Manual de Datos</Typography>
@@ -38,7 +37,6 @@ function App() {
                 <ListadoGeneradores />
               </>
             } />
-
             {/* Página de Reportes (placeholder) */}
             <Route path="/reportes" element={
               <>
@@ -47,7 +45,7 @@ function App() {
               </>
             } />
           </Routes>
-        </Box>
+        </Container>
       </div>
     </Router>
   );

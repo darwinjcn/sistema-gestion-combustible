@@ -12,7 +12,7 @@ const ListadoGeneradores = () => {
   useEffect(() => {
     const fetchGeneradores = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/generadores/');
+        const response = await axios.get('/api/generadores/');
         setGeneradores(response.data || []);
         setLoading(false);
       } catch (err) {

@@ -11,7 +11,7 @@ const IngresoDatos = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/consumos/', {
+      const response = await axios.post('/api/consumos/', {
         nivel_actual: nivel,
         generador: generadorId
       });

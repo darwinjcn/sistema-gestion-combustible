@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     
     # Tu app
     'combustible_api',
+
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +55,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Debe ir antes de CommonMiddleware
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'proyecto.urls'
