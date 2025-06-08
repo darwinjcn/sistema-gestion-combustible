@@ -1,6 +1,9 @@
+// App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { Container, AppBar, Toolbar, Typography, Button } from '@mui/material'; // Importa Button aquí
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Container, AppBar, Toolbar, Typography } from '@mui/material';
+
+// Importar componentes
 import IngresoDatos from './components/IngresoDatos';
 import ListadoGeneradores from './components/ListadoGeneradores';
 import AlertaSimulada from './components/AlertaSimulada';
@@ -8,12 +11,12 @@ import AlertaSimulada from './components/AlertaSimulada';
 function App() {
   return (
     <Router>
-      <div style={{ fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif' }}>
+      <div style={{ fontFamily: '"Roboto", sans-serif' }}>
         {/* Barra de navegación */}
         <AppBar position="static" color="primary">
           <Toolbar>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              Sistema Web de Gestión de Combustible - CANTV Lara
+              Sistema Web - CANTV Lara
             </Typography>
             <Button color="inherit" component={Link} to="/" sx={{ mx: 1 }}>
               Inicio
@@ -25,19 +28,17 @@ function App() {
         </AppBar>
 
         {/* Contenido principal */}
-        <Container maxWidth="lg" style={{ marginTop: '30px', marginBottom: '50px' }}>
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Routes>
-            {/* Vista Principal */}
             <Route path="/" element={
               <>
                 <Typography variant="h5" gutterBottom>Ingreso Manual de Datos</Typography>
                 <AlertaSimulada />
                 <IngresoDatos />
-                <hr style={{ margin: '30px 0' }} />
+                <hr style={{ margin: '30px 0', border: 'none', borderBottom: '1px solid #ccc' }} />
                 <ListadoGeneradores />
               </>
             } />
-            {/* Página de Reportes (placeholder) */}
             <Route path="/reportes" element={
               <>
                 <Typography variant="h5" gutterBottom>Generación de Reportes</Typography>
@@ -46,6 +47,13 @@ function App() {
             } />
           </Routes>
         </Container>
+
+        {/* Footer */}
+        <Box sx={{ textAlign: 'center', padding: '20px', backgroundColor: '#f9f9f9', color: '#555' }}>
+          <Typography variant="body2">
+            &copy; {new Date().getFullYear()} - Proyecto Universitario UNETI | Desarrollado por: Darwin Colmenares, Yannis Iturriago, GianneFran Radomile
+          </Typography>
+        </Box>
       </div>
     </Router>
   );
