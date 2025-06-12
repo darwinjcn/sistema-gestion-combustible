@@ -16,7 +16,7 @@ function App() {
         <AppBar position="static" color="primary">
           <Toolbar>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              Sistema Web - CANTV Lara
+              Sistema Web de Gestión de Combustible - CANTV Lara
             </Typography>
             <Button color="inherit" component={Link} to="/" sx={{ mx: 1 }}>
               Inicio

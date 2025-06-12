@@ -1,4 +1,4 @@
-# combustible_api/serializers.py
+# serializers.py
 
 from rest_framework import serializers
 from .models import GeneradorElectrico, DatosConsumo
@@ -27,7 +27,6 @@ class ConsumoSerializer(serializers.ModelSerializer):
         Asegúrate de recibir un valor válido (ID o instancia)
         """
         if isinstance(value, GeneradorElectrico):
-            # Si recibimos el objeto completo, extraemos el ID
             return value.id
         elif isinstance(value, int) and GeneradorElectrico.objects.filter(id=value).exists():
             return value

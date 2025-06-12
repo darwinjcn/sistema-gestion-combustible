@@ -20,12 +20,11 @@ const ListadoGeneradores = () => {
   useEffect(() => {
     const fetchGeneradores = async () => {
       try {
-        // Usamos la ruta relativa porque tenemos proxy configurado
         const response = await axios.get('/api/generadores/');
-        setGeneradores(response.data || []);
+        setGeneradores(response.data);
       } catch (err) {
-        console.error("Error al obtener los generadores:", err.response?.data || err.message);
-        setError("No se pudieron cargar los datos de los generadores.");
+        console.error('Error al obtener los generadores:', err);
+        setError("No se pudieron cargar los niveles");
       } finally {
         setLoading(false);
       }
