@@ -1,11 +1,19 @@
 // components/IngresoDatos.js
+
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography, Alert } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
+  Alert
+} from '@mui/material';
 import axios from 'axios';
 
 const IngresoDatos = () => {
   const [nivel, setNivel] = useState('');
   const [generadorId, setGeneradorId] = useState('');
+  const [consumo, setConsumo] = useState('');
   const [error, setError] = useState(null);
   const [exito, setExito] = useState(false);
 
@@ -14,7 +22,7 @@ const IngresoDatos = () => {
     setError(null);
     setExito(false);
 
-    if (!nivel || !generadorId) {
+    if (!nivel || !generadorId || !consumo) {
       setError("Por favor completa todos los campos.");
       return;
     }
@@ -22,6 +30,7 @@ const IngresoDatos = () => {
     try {
       const response = await axios.post('/api/consumos/', {
         nivel_actual: parseFloat(nivel),
+        consumo: parseFloat(consumo),
         generador: parseInt(generadorId)
       });
 
@@ -29,7 +38,7 @@ const IngresoDatos = () => {
       setExito(true);
     } catch (err) {
       console.error('Error al guardar los datos:', err.response?.data || err.message);
-      setError(`❌ Error al guardar los datos: ${err.message}`);
+      setError(err.response?.data || "Error desconocido al guardar los datos.");
     }
   };
 
@@ -49,10 +58,24 @@ const IngresoDatos = () => {
       {/* Mensaje de error */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {typeof error === 'string' ? error : JSON.stringify(error)}
         </Alert>
       )}
 
+      {/* ID del Generador */}
+      <TextField
+        label="ID del Generador"
+        type="number"
+        fullWidth
+        margin="normal"
+        value={generadorId}
+        onChange={(e) => setGeneradorId(e.target.value)}
+        required
+        inputProps={{ min: "1", step: "1" }}
+        helperText="Introduce un ID válido de un generador existente"
+      />
+
+      {/* Nivel Actual */}
       <TextField
         label="Nivel actual de combustible (L)"
         type="number"
@@ -65,18 +88,20 @@ const IngresoDatos = () => {
         helperText="Ejemplo: 750.50"
       />
 
+      {/* Consumo */}
       <TextField
-        label="ID del Generador"
+        label="Consumo de combustible (L)"
         type="number"
         fullWidth
         margin="normal"
-        value={generadorId}
-        onChange={(e) => setGeneradorId(e.target.value)}
+        value={consumo}
+        onChange={(e) => setConsumo(e.target.value)}
         required
-        inputProps={{ min: "1" }}
-        helperText="Introduce el ID del generador"
+        inputProps={{ min: "0", step: "any" }}
+        helperText="Ejemplo: 50.25"
       />
 
+      {/* Botón Guardar */}
       <Button
         variant="contained"
         color="primary"

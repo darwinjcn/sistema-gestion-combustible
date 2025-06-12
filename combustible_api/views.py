@@ -26,6 +26,20 @@ class ConsumoViewSet(viewsets.ModelViewSet):
     queryset = DatosConsumo.objects.all()
     serializer_class = ConsumoSerializer
 
+    def perform_create(self, serializer):
+        generador = self.request.data.get('generador')
+        nivel_actual = float(self.request.data.get('nivel_actual'))
+        
+        # Obtiene el último nivel registrado del generador
+        ultimo_registro = DatosConsumo.objects.filter(generador_id=generador).order_by('-fecha').first()
+        nivel_anterior = ultimo_registro.nivel_actual if ultimo_registro else nivel_actual
+
+        consumo_calculado = abs(nivel_anterior - nivel_actual)
+
+        serializer.save(
+            consumo=consumo_calculado
+        )
+
 
 # --- Vistas HTML (opcional) ---
 def index(request):

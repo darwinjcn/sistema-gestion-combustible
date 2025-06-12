@@ -1,9 +1,11 @@
+# models.py
 from django.db import models
 
 class GeneradorElectrico(models.Model):
     modelo = models.CharField(max_length=100)
     capacidad_tanque = models.FloatField()
     estado = models.CharField(max_length=50)
+    nivel_actual = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return self.modelo

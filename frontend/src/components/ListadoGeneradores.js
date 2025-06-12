@@ -1,7 +1,15 @@
 // components/ListadoGeneradores.js
 
 import React, { useEffect, useState } from 'react';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow
+} from '@mui/material';
 import axios from 'axios';
 
 const ListadoGeneradores = () => {
@@ -14,10 +22,10 @@ const ListadoGeneradores = () => {
       try {
         const response = await axios.get('/api/generadores/');
         setGeneradores(response.data || []);
-        setLoading(false);
       } catch (err) {
         console.error("Error al obtener los generadores:", err);
         setError("No se pudieron cargar los datos de los generadores.");
+      } finally {
         setLoading(false);
       }
     };
@@ -26,7 +34,10 @@ const ListadoGeneradores = () => {
   }, []);
 
   if (loading) return <p>Cargando datos...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (error)
+    return (
+      <p style={{ color: 'red' }}>{error}</p>
+    );
 
   return (
     <TableContainer component={Paper}>
@@ -49,10 +60,10 @@ const ListadoGeneradores = () => {
                 <TableCell>{gen.capacidad_tanque}</TableCell>
                 <TableCell>{gen.nivel_actual || 'N/A'}</TableCell>
                 <TableCell>
-                  {gen.nivel_actual < 300 && gen.nivel_actual !== null ? (
-                    <span style={{ color: 'red', fontWeight: 'bold' }}>⚠️ Bajo</span>
-                  ) : (
+                  {gen.estado === 'activo' ? (
                     <span style={{ color: 'green' }}>✔️ Normal</span>
+                  ) : (
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>⚠️ Inactivo</span>
                   )}
                 </TableCell>
               </TableRow>
