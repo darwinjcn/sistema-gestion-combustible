@@ -1,13 +1,7 @@
 // components/IngresoDatos.js
 
 import React, { useState } from 'react';
-import {
-  TextField,
-  Button,
-  Box,
-  Typography,
-  Alert
-} from '@mui/material';
+import { TextField, Button, Box, Typography, Alert } from '@mui/material';
 import axios from 'axios';
 
 const IngresoDatos = () => {
@@ -38,7 +32,7 @@ const IngresoDatos = () => {
       setExito(true);
     } catch (err) {
       console.error('Error al guardar los datos:', err.response?.data || err.message);
-      setError(err.response?.data || "Error desconocido al guardar los datos.");
+      setError(err.response?.data || "Error al guardar los datos");
     }
   };
 
