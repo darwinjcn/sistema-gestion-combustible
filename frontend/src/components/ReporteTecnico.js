@@ -2,14 +2,23 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, TextField, Alert } from '@mui/material';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert
+} from '@mui/material';
+
+// Servicios de exportación
+import { exportToExcel, exportToPDF } from '../services/exportService';
 
 const ReporteTecnico = () => {
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState('');
   const [mensaje, setMensaje] = useState('');
 
-  const generarReporte = async () => {
+  const handleExport = async (formato) => {
     try {
       let url = '/api/consumos/';
       if (desde && hasta) {
@@ -19,20 +28,23 @@ const ReporteTecnico = () => {
       const res = await axios.get(url);
       const datos = res.data;
 
-      const contenido = datos.map(item => ({
-        Fecha: item.fecha,
-        Generador: item.generador,
-        NivelActual: `${item.nivel_actual} L`,
-        Consumo: `${item.consumo} L`
-      }));
-
-      const blob = new Blob([JSON.stringify(contenido, null, 2)], { type: 'application/json' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `reporte_consumo_${desde || 'inicio'}_${hasta || 'fin'}.json`;
-      link.click();
-
-      setMensaje("✅ Reporte descargado exitosamente.");
+      if (formato === 'excel') {
+        exportToExcel(datos, desde, hasta);
+        setMensaje("✅ Reporte Excel descargado exitosamente.");
+      } else if (formato === 'pdf') {
+        exportToPDF(datos, desde, hasta);
+        setMensaje("✅ Reporte PDF descargado exitosamente.");
+      } else {
+        // Descarga en JSON por defecto
+        const blob = new Blob([JSON.stringify(datos, null, 2)], {
+          type: 'application/json'
+        });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `reporte_consumo_${desde || 'inicio'}_${hasta || 'fin'}.json`;
+        link.click();
+        setMensaje("✅ Reporte JSON descargado exitosamente.");
+      }
     } catch (err) {
       console.error("Error al generar reporte:", err);
       setMensaje("❌ No se pudo generar el reporte.");
@@ -70,14 +82,33 @@ const ReporteTecnico = () => {
       <Button
         variant="contained"
         color="secondary"
-        onClick={generarReporte}
-        fullWidth
-        sx={{ mt: 2 }}
+        onClick={() => handleExport('json')}
+        sx={{ mr: 2, mt: 2 }}
       >
-        Descargar Reporte (JSON)
+        Descargar JSON
       </Button>
 
-      {mensaje && <Alert severity={mensaje.includes("exitosamente") ? "success" : "error"}>{mensaje}</Alert>}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => handleExport('excel')}
+        sx={{ mr: 2, mt: 2 }}
+      >
+        Descargar Excel
+      </Button>
+
+      <Button
+        variant="contained"
+        color="error"
+        onClick={() => handleExport('pdf')}
+        sx={{ mt: 2 }}
+      >
+        Descargar PDF
+      </Button>
+
+      {mensaje && (
+        <Alert severity={mensaje.includes("exitosamente") ? "success" : "error"}>{mensaje}</Alert>
+      )}
     </Box>
   );
 };

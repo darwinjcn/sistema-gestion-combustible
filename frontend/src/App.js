@@ -1,17 +1,20 @@
-// src/App.js
+"use client"
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { Container, AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import { useState } from "react"
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom"
+import { Container, AppBar, Toolbar, Typography, Button, Box, Divider } from "@mui/material"
 
 // Componentes importados
-import IngresoDatos from './components/IngresoDatos';
-import ListadoGeneradores from './components/ListadoGeneradores';
-import AlertaReal from './components/AlertaReal'; // Nueva alerta real
-import GraficoConsumo from './components/GraficoConsumo'; // Nuevo componente de gráfico
-import ReporteTecnico from './components/ReporteTecnico'; // Generación de reportes
+import IngresoDatos from "./components/IngresoDatos"
+import ListadoGeneradores from "./components/ListadoGeneradores"
+import AlertaReal from "./components/AlertaReal"
+import GraficoConsumo from "./components/GraficoConsumo"
+import ReporteTecnico from "./components/ReporteTecnico"
 
 function App() {
+  // Estado para manejar qué generador está seleccionado
+  const [generadorSeleccionado, setGeneradorSeleccionado] = useState(null)
+
   return (
     <Router>
       <div style={{ fontFamily: '"Roboto", sans-serif' }}>
@@ -34,15 +37,27 @@ function App() {
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Routes>
             {/* Vista Principal */}
-            <Route path="/" element={
-              <>
-                <AlertaReal />  {/* Alerta automática según nivel */}
-                <IngresoDatos />
-                <hr style={{ margin: '30px 0', border: 'none', borderBottom: '1px solid #ccc' }} />
-                <ListadoGeneradores />
-                <GraficoConsumo generadorId={1} />  {/* Ejemplo para el generador ID 1 */}
-              </>
-            } />
+            <Route
+              path="/"
+              element={
+                <>
+                  <AlertaReal />
+                  <IngresoDatos />
+
+                  <Divider sx={{ my: 4 }} />
+
+                  {/* Pasar la función de selección al ListadoGeneradores */}
+                  <ListadoGeneradores onGeneradorSelect={setGeneradorSeleccionado} />
+
+                  {/* Mostrar el gráfico solo si hay un generador seleccionado */}
+                  {generadorSeleccionado && (
+                    <Box sx={{ mt: 4 }}>
+                      <GraficoConsumo generadorId={generadorSeleccionado} />
+                    </Box>
+                  )}
+                </>
+              }
+            />
 
             {/* Página de Reportes */}
             <Route path="/reportes" element={<ReporteTecnico />} />
@@ -50,15 +65,15 @@ function App() {
         </Container>
 
         {/* Footer */}
-        <Box sx={{ textAlign: 'center', padding: '20px', backgroundColor: '#f8f8f8', color: '#555' }}>
+        <Box sx={{ textAlign: "center", padding: "20px", backgroundColor: "#f8f8f8", color: "#555" }}>
           <Typography variant="body2">
-            &copy; {new Date().getFullYear()} - Proyecto Universitario UNETI | Desarrollado por:
-            Darwin Colmenares, Yannis Iturriago, GianneFran Radomile
+            &copy; {new Date().getFullYear()} - Proyecto Universitario UNETI | Desarrollado por: Darwin Colmenares,
+            Yannis Iturriago, GianneFran Radomile
           </Typography>
         </Box>
       </div>
     </Router>
-  );
+  )
 }
 
-export default App;
+export default App
