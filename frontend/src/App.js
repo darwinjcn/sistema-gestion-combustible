@@ -1,12 +1,15 @@
-// App.js
+// src/App.js
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Container, AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 
-// Componentes
+// Componentes importados
 import IngresoDatos from './components/IngresoDatos';
 import ListadoGeneradores from './components/ListadoGeneradores';
-import AlertaSimulada from './components/AlertaSimulada';
+import AlertaReal from './components/AlertaReal'; // Nueva alerta real
+import GraficoConsumo from './components/GraficoConsumo'; // Nuevo componente de gráfico
+import ReporteTecnico from './components/ReporteTecnico'; // Generación de reportes
 
 function App() {
   return (
@@ -22,7 +25,7 @@ function App() {
               Inicio
             </Button>
             <Button color="inherit" component={Link} to="/reportes" sx={{ mx: 1 }}>
-              Reportes
+              Reportes Técnicos
             </Button>
           </Toolbar>
         </AppBar>
@@ -30,30 +33,27 @@ function App() {
         {/* Contenido principal */}
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Routes>
-            {/* Página Principal */}
+            {/* Vista Principal */}
             <Route path="/" element={
               <>
-                <AlertaSimulada />
+                <AlertaReal />  {/* Alerta automática según nivel */}
                 <IngresoDatos />
                 <hr style={{ margin: '30px 0', border: 'none', borderBottom: '1px solid #ccc' }} />
                 <ListadoGeneradores />
+                <GraficoConsumo generadorId={1} />  {/* Ejemplo para el generador ID 1 */}
               </>
             } />
 
-            {/* Placeholder para reportes */}
-            <Route path="/reportes" element={
-              <>
-                <Typography variant="h5" gutterBottom>Generación de Reportes</Typography>
-                <p>Próximamente podrás generar reportes PDF y Excel desde aquí.</p>
-              </>
-            } />
+            {/* Página de Reportes */}
+            <Route path="/reportes" element={<ReporteTecnico />} />
           </Routes>
         </Container>
 
         {/* Footer */}
-        <Box sx={{ textAlign: 'center', padding: '20px', backgroundColor: '#f0f0f0', color: '#555' }}>
+        <Box sx={{ textAlign: 'center', padding: '20px', backgroundColor: '#f8f8f8', color: '#555' }}>
           <Typography variant="body2">
-            &copy; {new Date().getFullYear()} - Proyecto Universitario UNETI | Desarrollado por: Darwin Colmenares, Yannis Iturriago, GianneFran Radomile
+            &copy; {new Date().getFullYear()} - Proyecto Universitario UNETI | Desarrollado por:
+            Darwin Colmenares, Yannis Iturriago, GianneFran Radomile
           </Typography>
         </Box>
       </div>
