@@ -1,0 +1,107 @@
+@startuml
+!theme plain
+title Diagrama de Clases - Sistema de Gestión de Combustible CANTV Lara
+
+package "Modelos Django" {
+    class GeneradorElectrico {
+        +id: AutoField
+        +modelo: CharField(100)
+        +capacidad_tanque: FloatField
+        +nivel_actual: FloatField
+        +estado: CharField(20)
+        +fecha_creacion: DateTimeField
+        +fecha_actualizacion: DateTimeField
+        --
+        +__str__(): string
+        +get_porcentaje_nivel(): float
+        +is_nivel_bajo(): boolean
+        +save(): void
+    }
+
+    class DatosConsumo {
+        +id: AutoField
+        +generador: ForeignKey(GeneradorElectrico)
+        +fecha: DateTimeField
+        +consumo: FloatField
+        +nivel_actual: FloatField
+        --
+        +__str__(): string
+        +get_fecha_formateada(): string
+        +calcular_consumo_anterior(): float
+        +save(): void
+    }
+}
+
+package "API ViewSets" {
+    class GeneradorViewSet {
+        +queryset: QuerySet
+        +serializer_class: GeneradorSerializer
+        +authentication_classes: list
+        +permission_classes: list
+        --
+        +list(): Response
+        +create(): Response
+        +retrieve(): Response
+        +update(): Response
+        +destroy(): Response
+        +get_queryset(): QuerySet
+    }
+
+    class ConsumoViewSet {
+        +queryset: QuerySet
+        +serializer_class: ConsumoSerializer
+        +authentication_classes: list
+        +permission_classes: list
+        --
+        +get_queryset(): QuerySet
+        +perform_create(): void
+        +list(): Response
+        +create(): Response
+        +retrieve(): Response
+        +update(): Response
+        +destroy(): Response
+    }
+}
+
+package "Serializers" {
+    class GeneradorSerializer {
+        +Meta: class
+        --
+        +validate(): dict
+        +create(): GeneradorElectrico
+        +update(): GeneradorElectrico
+        +to_representation(): dict
+    }
+
+    class ConsumoSerializer {
+        +Meta: class
+        --
+        +validate(): dict
+        +create(): DatosConsumo
+        +update(): DatosConsumo
+        +to_representation(): dict
+    }
+}
+
+' Relaciones
+GeneradorElectrico ||--o{ DatosConsumo : "1:N"
+GeneradorViewSet ..> GeneradorElectrico : "gestiona"
+ConsumoViewSet ..> DatosConsumo : "gestiona"
+GeneradorViewSet ..> GeneradorSerializer : "usa"
+ConsumoViewSet ..> ConsumoSerializer : "usa"
+GeneradorSerializer ..> GeneradorElectrico : "serializa"
+ConsumoSerializer ..> DatosConsumo : "serializa"
+
+note right of GeneradorElectrico
+  Modelo principal que representa
+  los generadores eléctricos de CANTV.
+  Incluye validaciones de negocio.
+end note
+
+note right of DatosConsumo
+  Registra el historial de consumos
+  de cada generador con timestamps
+  automáticos.
+end note
+
+@enduml

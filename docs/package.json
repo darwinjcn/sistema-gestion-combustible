@@ -1,0 +1,62 @@
+{
+  "name": "combustible-cantv-docs",
+  "version": "1.0.0",
+  "description": "Documentación y herramientas para el Sistema de Gestión de Combustible CANTV Lara",
+  "main": "index.js",
+  "scripts": {
+    "docs:build": "./scripts/generar_diagramas.sh",
+    "docs:install": "./scripts/generar_diagramas.sh --install",
+    "docs:validate": "./scripts/generar_diagramas.sh --validate",
+    "docs:serve": "npx http-server . -p 8080 -o",
+    "plantuml": "plantuml diagramas/clases.puml -o output/",
+    "mermaid": "mmdc -i diagramas/arquitectura.md -o output/arquitectura.png",
+    "mermaid:all": "npm run mermaid:arquitectura && npm run mermaid:secuencia && npm run mermaid:despliegue",
+    "mermaid:arquitectura": "mmdc -i diagramas/arquitectura.md -o output/arquitectura.png -t default -b white",
+    "mermaid:secuencia": "mmdc -i diagramas/secuencia.md -o output/secuencia.png -t default -b white",
+    "mermaid:despliegue": "mmdc -i diagramas/despliegue.md -o output/despliegue.png -t default -b white",
+    "export:png": "npm run plantuml && npm run mermaid:all",
+    "export:svg": "plantuml diagramas/clases.puml -o output/ -tsvg && mmdc -i diagramas/arquitectura.md -o output/arquitectura.svg -f svg",
+    "export:pdf": "mmdc -i diagramas/arquitectura.md -o output/arquitectura.pdf -f pdf",
+    "clean": "rm -rf output/* && mkdir -p output/{png,svg,pdf}",
+    "test": "echo \"Validando archivos de diagramas...\" && npm run docs:validate"
+  },
+  "keywords": ["uml", "diagrams", "plantuml", "mermaid", "documentation", "cantv", "combustible", "django", "react"],
+  "authors": ["Darwin Colmenares", "Yannis Iturriago", "GianneFran Radomile"],
+  "license": "MIT",
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^10.6.1",
+    "http-server": "^14.1.1",
+    "markdown-it": "^13.0.2",
+    "markdown-it-mermaid": "^0.2.5"
+  },
+  "dependencies": {
+    "puppeteer": "^21.5.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/sistema-gestion-combustible.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tu-usuario/sistema-gestion-combustible/issues"
+  },
+  "homepage": "https://github.com/tu-usuario/sistema-gestion-combustible#readme",
+  "config": {
+    "mermaid": {
+      "theme": "default",
+      "themeVariables": {
+        "primaryColor": "#3498db",
+        "primaryTextColor": "#2c3e50",
+        "primaryBorderColor": "#2980b9",
+        "lineColor": "#34495e"
+      }
+    },
+    "plantuml": {
+      "outputFormat": "png",
+      "theme": "plain"
+    }
+  }
+}
