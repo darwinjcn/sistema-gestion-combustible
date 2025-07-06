@@ -1,40 +1,115 @@
-// components/Dashboard.js
+"use client"
 
-import React, { useState } from 'react';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
-import ListadoGeneradores from './ListadoGeneradores';
-import GraficoConsumo from './GraficoConsumo';
+import { useState, useEffect } from "react"
+import { Box, Typography, Grid, Chip } from "@mui/material"
+import axios from "axios"
+import ListadoGeneradores from "./ListadoGeneradores"
+import GraficoConsumo from "./GraficoConsumo"
+import { StyledCard, StyledTitle, MetricsContainer, MetricCard } from "./StyledComponents"
 
 const Dashboard = () => {
-  const [generadorSeleccionado, setGeneradorSeleccionado] = useState(null); // ✅ Inicia como null
+  const [generadorSeleccionado, setGeneradorSeleccionado] = useState(null)
+  const [metricas, setMetricas] = useState({
+    totalGeneradores: 0,
+    generadoresActivos: 0,
+    consumoTotal: 0,
+    nivelPromedio: 0,
+  })
+
+  useEffect(() => {
+    const fetchMetricas = async () => {
+      try {
+        const [resGeneradores, resConsumos] = await Promise.all([
+          axios.get("/api/generadores/"),
+          axios.get("/api/consumos/"),
+        ])
+
+        const generadores = resGeneradores.data
+        const consumos = resConsumos.data
+
+        const totalGeneradores = generadores.length
+        const generadoresActivos = generadores.filter((g) => g.estado === "activo").length
+        const consumoTotal = consumos.reduce((total, c) => total + c.consumo, 0)
+        const nivelPromedio = generadores.reduce((total, g) => total + (g.nivel_actual || 0), 0) / totalGeneradores
+
+        setMetricas({
+          totalGeneradores,
+          generadoresActivos,
+          consumoTotal,
+          nivelPromedio,
+        })
+      } catch (err) {
+        console.error("Error cargando métricas:", err)
+      }
+    }
+
+    fetchMetricas()
+  }, [])
 
   return (
-    <Box sx={{ padding: 2 }}>
-      <Typography variant="h5" gutterBottom>
-        Dashboard de Gestión de Combustible
-      </Typography>
+    <Box sx={{ p: 3 }}>
+      <StyledTitle variant="h4">⚡ Dashboard de Gestión de Combustible</StyledTitle>
+
+      {/* Métricas principales */}
+      <MetricsContainer>
+        <MetricCard>
+          <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
+            {metricas.totalGeneradores}
+          </Typography>
+          <Typography variant="body1">Total Generadores</Typography>
+        </MetricCard>
+
+        <MetricCard>
+          <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
+            {metricas.generadoresActivos}
+          </Typography>
+          <Typography variant="body1">Generadores Activos</Typography>
+        </MetricCard>
+
+        <MetricCard>
+          <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
+            {metricas.consumoTotal.toFixed(1)}L
+          </Typography>
+          <Typography variant="body1">Consumo Total</Typography>
+        </MetricCard>
+
+        <MetricCard>
+          <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
+            {metricas.nivelPromedio.toFixed(1)}L
+          </Typography>
+          <Typography variant="body1">Nivel Promedio</Typography>
+        </MetricCard>
+      </MetricsContainer>
 
       <Grid container spacing={3}>
         {/* Listado de Generadores */}
-        <Grid item xs={12} md={6}>
-          <ListadoGeneradores onSelect={(id) => setGeneradorSeleccionado(parseInt(id))} />
+        <Grid item xs={12} lg={6}>
+          <ListadoGeneradores onGeneradorSelect={setGeneradorSeleccionado} />
         </Grid>
 
         {/* Gráfico de consumo */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} lg={6}>
           {generadorSeleccionado ? (
-            <GraficoConsumo generadorId={generadorSeleccionado} />
+            <StyledCard>
+              <GraficoConsumo generadorId={generadorSeleccionado} />
+            </StyledCard>
           ) : (
-            <Typography color="text.secondary">
-              Selecciona un generador para ver su gráfico de consumo.
-            </Typography>
+            <StyledCard>
+              <Box sx={{ textAlign: "center", py: 4 }}>
+                <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                  📊 Análisis de Consumo
+                </Typography>
+                <Typography color="text.secondary">
+                  Selecciona un generador de la tabla para ver su gráfico de consumo detallado
+                </Typography>
+                <Chip label="Esperando selección..." color="primary" variant="outlined" sx={{ mt: 2 }} />
+              </Box>
+            </StyledCard>
           )}
         </Grid>
       </Grid>
     </Box>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard
