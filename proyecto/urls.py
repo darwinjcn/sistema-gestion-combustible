@@ -87,21 +87,20 @@ def home_view(request):
     """)
 
 urlpatterns = [
-    # NUEVA: Ruta para la página raíz
-    path('', home_view, name='home'),  # Opción 1: Página de bienvenida
-    # path('', redirect_to_admin, name='home_redirect'),  # Opción 2: Redirección automática
+    # Ruta para la página raíz
+    path('', home_view, name='home'),
     
-    # TUS RUTAS EXISTENTES (sin cambios)
+    # Panel de administración de Django
     path('admin/', admin.site.urls),
     
-    # Rutas API
+    # API REST de la aplicación
     path('api/', include('combustible_api.urls')),
     
-    # Autenticación DRF (para pruebas)
+    # ✅ ESTA ES LA LÍNEA QUE FALTABA - Autenticación DRF
     path('api/auth/', include('rest_framework.urls')),  # URLs de sesión de DRF
     
-    # Token Authentication
-    path('api/token-auth/', obtain_auth_token, name='api_token_auth'),  # Login vía token
+    # Token Authentication (para API)
+    path('api/token-auth/', obtain_auth_token, name='api_token_auth'),
 ]
 
 # Solo incluye esto si usas archivos estáticos durante desarrollo

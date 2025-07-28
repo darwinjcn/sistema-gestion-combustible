@@ -1,6 +1,8 @@
 # combustible_api/views.py
 
 from rest_framework import viewsets
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from .models import GeneradorElectrico, DatosConsumo
 from .serializers import GeneradorSerializer, ConsumoSerializer
 from django.http import HttpResponse
@@ -11,6 +13,22 @@ from rest_framework.permissions import IsAuthenticated
 
 def home(request):
     return HttpResponse("Bienvenido al Sistema Web de Gestión de Combustible - CANTV Lara")
+
+
+@api_view(['GET'])
+def api_status(request):
+    """Endpoint para verificar el estado de la API"""
+    return Response({
+        'status': 'OK',
+        'message': 'API de Gestión de Combustible CANTV Lara funcionando correctamente',
+        'version': '1.0.0',
+        'endpoints': {
+            'generadores': '/api/generadores/',
+            'consumos': '/api/consumos/',
+            'auth': '/api/auth/',
+            'token': '/api/token-auth/'
+        }
+    })
 
 
 class GeneradorViewSet(viewsets.ModelViewSet):
@@ -27,7 +45,6 @@ class ConsumoViewSet(viewsets.ModelViewSet):
     """
     API endpoint para registrar y mostrar consumos.
     """
-    # AGREGAR ESTA LÍNEA - Define el queryset base
     queryset = DatosConsumo.objects.all()
     serializer_class = ConsumoSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
@@ -40,7 +57,6 @@ class ConsumoViewSet(viewsets.ModelViewSet):
         - ?desde=YYYY-MM-DD
         - ?hasta=YYYY-MM-DD
         """
-        # Usar el queryset base y aplicar filtros
         queryset = self.queryset
 
         # Filtro por ID del generador
