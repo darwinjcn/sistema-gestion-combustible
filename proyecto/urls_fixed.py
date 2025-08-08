@@ -1,3 +1,4 @@
+# VERSIÓN ALTERNATIVA DE urls.py (si la anterior no funciona)
 from django.urls import path, include
 from django.contrib import admin
 from django.conf import settings
@@ -9,10 +10,6 @@ from django.http import HttpResponse
 def redirect_to_admin(request):
     """Redirige desde la raíz hacia el admin"""
     return redirect('/admin/')
-
-def redirect_to_login(request):
-    """Redirige desde /api/auth/ hacia /api/auth/login/"""
-    return redirect('/api/auth/login/')
 
 def home_view(request):
     """Vista de bienvenida del sistema"""
@@ -119,10 +116,7 @@ urlpatterns = [
     # API REST de la aplicación
     path('api/', include('combustible_api.urls')),
     
-    # ✅ REDIRECCIÓN DESDE /api/auth/ A /api/auth/login/
-    path('api/auth/', redirect_to_login, name='auth_redirect'),
-    
-    # ✅ Autenticación DRF (interfaz web para login/logout)
+    # ✅ Autenticación DRF (DEBE IR DESPUÉS de api/)
     path('api/auth/', include('rest_framework.urls')),
     
     # ✅ Token Authentication (para API programática)

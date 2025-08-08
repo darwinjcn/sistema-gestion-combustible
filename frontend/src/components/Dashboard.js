@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { Box, Typography, Grid, Chip } from "@mui/material"
 import axios from "axios"
 import ListadoGeneradores from "./ListadoGeneradores"
@@ -46,11 +46,16 @@ const Dashboard = () => {
     fetchMetricas()
   }, [])
 
+  // ✅ USAR useCallback PARA FUNCIÓN ESTABLE
+  const handleGeneradorSelect = useCallback((generadorId) => {
+    console.log("Dashboard - Generador seleccionado:", generadorId)
+    setGeneradorSeleccionado(generadorId)
+  }, [])
+
   return (
     <Box sx={{ p: 3 }}>
       <StyledTitle variant="h4">⚡ Dashboard de Gestión de Combustible</StyledTitle>
 
-      {/* Métricas principales */}
       <MetricsContainer>
         <MetricCard>
           <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
@@ -82,12 +87,10 @@ const Dashboard = () => {
       </MetricsContainer>
 
       <Grid container spacing={3}>
-        {/* Listado de Generadores */}
         <Grid item xs={12} lg={6}>
-          <ListadoGeneradores onGeneradorSelect={setGeneradorSeleccionado} />
+          <ListadoGeneradores onGeneradorSelect={handleGeneradorSelect} />
         </Grid>
 
-        {/* Gráfico de consumo */}
         <Grid item xs={12} lg={6}>
           {generadorSeleccionado ? (
             <StyledCard>

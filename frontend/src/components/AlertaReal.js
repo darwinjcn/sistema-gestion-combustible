@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import axios from "axios"
 import { Alert, Box, Typography, Chip } from "@mui/material"
 import { StyledCard } from "./StyledComponents"
@@ -14,29 +14,51 @@ const AlertaReal = () => {
   useEffect(() => {
     const checkNivelesBajos = async () => {
       try {
+        console.log("🔍 Verificando niveles de combustible...")
         const res = await axios.get("/api/generadores/")
-        const generadores = res.data
+        
+        // ✅ VERIFICAR QUE LA RESPUESTA SEA VÁLIDA
+        console.log("📊 Respuesta de API generadores:", res.data)
+        
+        if (!res.data || !Array.isArray(res.data)) {
+          throw new Error("La respuesta de la API no es un array válido")
+        }
 
+        const generadores = res.data
         const nuevasAlertas = []
 
+        // ✅ USAR for...of EN LUGAR DE for...in
         for (const gen of generadores) {
-          if (gen.estado === "activo" && gen.nivel_actual < UMBRAL_NIVEL_BAJO) {
+          if (gen.estado === "activo" && (gen.nivel_actual || 0) < UMBRAL_NIVEL_BAJO) {
             nuevasAlertas.push({
               id: gen.id,
               mensaje: `Nivel bajo en el generador ${gen.modelo} (ID: ${gen.id})`,
-              nivel: gen.nivel_actual,
+              nivel: gen.nivel_actual || 0,
               tipo: "warning",
             })
           }
         }
 
+        console.log("⚠️ Alertas encontradas:", nuevasAlertas.length)
         setAlertas(nuevasAlertas)
       } catch (err) {
-        console.error("No se pudieron verificar niveles:", err)
+        console.error("❌ Error verificando niveles:", err)
+        
+        // Mensaje más específico según el tipo de error
+        let mensajeError = "Error: No se pudo conectar con la API"
+        
+        if (err.response?.status === 500) {
+          mensajeError = "Error: Problema en el servidor Django"
+        } else if (err.response?.status === 401) {
+          mensajeError = "Error: No autorizado - verifica tu sesión"
+        } else if (err.message?.includes("array")) {
+          mensajeError = "Error: Formato de datos inválido del servidor"
+        }
+
         setAlertas([
           {
             id: -1,
-            mensaje: "Error: No se pudo conectar con la API",
+            mensaje: mensajeError,
             tipo: "error",
           },
         ])
@@ -55,7 +77,7 @@ const AlertaReal = () => {
     return (
       <StyledCard>
         <Typography variant="h6" sx={{ textAlign: "center", color: "#7f8c8d" }}>
-          Verificando niveles de combustible...
+          🔍 Verificando niveles de combustible...
         </Typography>
       </StyledCard>
     )
@@ -71,7 +93,7 @@ const AlertaReal = () => {
           </Typography>
           {alertas.map((alerta, index) => (
             <Alert
-              key={index}
+              key={`alerta-${index}`}
               severity={alerta.tipo}
               sx={{
                 mb: 1,
@@ -88,7 +110,7 @@ const AlertaReal = () => {
                 <Typography variant="body1" sx={{ fontWeight: 500 }}>
                   {alerta.mensaje}
                 </Typography>
-                {alerta.nivel && (
+                {alerta.nivel > 0 && (
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
                     Solo {alerta.nivel} L restantes
                   </Typography>

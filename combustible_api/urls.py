@@ -12,6 +12,9 @@ urlpatterns = [
     # Incluir todas las rutas del router
     path('', include(router.urls)),
     
-    # Vista personalizada (opcional)
+    # Vista personalizada para verificar estado de la API
     path('status/', views.api_status, name='api_status'),
+    
+    # ✅ NUEVA: Redirección desde raíz de API a la interfaz browsable
+    path('', views.api_root, name='api_root'),
 ]
