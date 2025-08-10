@@ -1,79 +1,44 @@
 // services/exportService.js
 
-import * as XLSX from 'exceljs';
-import { saveAs } from 'file-saver';
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+import * as XLSX from "xlsx"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
 
-pdfMake.vfs = pdfFonts.pdfMake ? pdfFonts.pdfMake.vfs : {};
-pdfMake.fonts = {
-  Roboto: {
-    normal: 'Roboto-Regular.ttf',
-    bold: 'Roboto-Medium.ttf',
-    italics: 'Roboto-Italic.ttf',
-    bolditalics: 'Roboto-MediumItalic.ttf'
+function normalizeRow(row) {
+  return {
+    id: row.id ?? "",
+    generador:
+      typeof row.generador === "object" ? (row.generador?.modelo ?? row.generador?.id ?? "") : (row.generador ?? ""),
+    fecha: row.fecha ?? "",
+    consumo: row.consumo ?? 0,
+    nivel_actual: row.nivel_actual ?? 0,
   }
-};
+}
 
-// Exportar a Excel
-export const exportToExcel = (data, desde, hasta) => {
-  const workbook = new XLSX.Workbook();
-  const worksheet = workbook.addWorksheet('Consumos');
+export function exportToExcel(datos = [], desde = "", hasta = "") {
+  const rows = (Array.isArray(datos) ? datos : []).map(normalizeRow)
+  const ws = XLSX.utils.json_to_sheet(rows)
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, "Consumos")
+  const name = `reporte_consumo_${desde || "inicio"}_${hasta || "fin"}.xlsx`
+  XLSX.writeFile(wb, name)
+}
 
-  // Encabezados
-  worksheet.columns = [
-    { header: 'Fecha', key: 'fecha', width: 20 },
-    { header: 'Generador ID', key: 'generador', width: 15 },
-    { header: 'Nivel Actual (L)', key: 'nivel_actual', width: 15 },
-    { header: 'Consumo (L)', key: 'consumo', width: 15 },
-  ];
+export function exportToPDF(datos = [], desde = "", hasta = "") {
+  const rows = (Array.isArray(datos) ? datos : []).map(normalizeRow)
+  const doc = new jsPDF({ unit: "pt", format: "a4" })
+  doc.setFontSize(16)
+  doc.text("Reporte de Consumos", 40, 40)
+  doc.setFontSize(10)
+  doc.text(`Rango: ${desde || "Inicio"} — ${hasta || "Fin"}`, 40, 60)
 
-  // Filas
-  data.forEach(item => {
-    worksheet.addRow({
-      fecha: item.fecha.slice(0, 10),
-      generador: item.generador,
-      nivel_actual: item.nivel_actual,
-      consumo: item.consumo
-    });
-  });
+  autoTable(doc, {
+    startY: 80,
+    styles: { fontSize: 9 },
+    head: [["ID", "Generador", "Fecha", "Consumo (L)", "Nivel Actual (L)"]],
+    body: rows.map((r) => [r.id, String(r.generador), String(r.fecha), String(r.consumo), String(r.nivel_actual)]),
+  })
 
-  // Descargar archivo
-  workbook.xlsx.writeBuffer().then(buffer => {
-    const blob = new Blob([buffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    });
-    saveAs(blob, `reporte_consumo_${desde || 'inicio'}_${hasta || 'fin'}.xlsx`);
-  });
-};
-
-
-// Exportar a PDF
-export const exportToPDF = (data, desde, hasta) => {
-  const body = data.map(item => [
-    item.fecha.slice(0, 10),
-    item.generador,
-    item.nivel_actual,
-    item.consumo
-  ]);
-
-  const docDefinition = {
-    content: [
-      { text: 'Reporte Técnico de Consumo de Combustible\n\n', fontSize: 18, alignment: 'center' },
-      {
-        table: {
-          headers: ['Fecha', 'Generador ID', 'Nivel Actual (L)', 'Consumo (L)'],
-          body: [
-            ['Fecha', 'Generador ID', 'Nivel Actual (L)', 'Consumo (L)'],
-            ...body
-          ]
-        }
-      }
-    ],
-    defaultStyle: {
-      font: 'Roboto'
-    }
-  };
-
-  pdfMake.createPdf(docDefinition).download(`reporte_consumo_${desde || 'inicio'}_${hasta || 'fin'}.pdf`);
-};
+  const name = `reporte_consumo_${desde || "inicio"}_${hasta || "fin"}.pdf`
+  doc.save(name)
+}

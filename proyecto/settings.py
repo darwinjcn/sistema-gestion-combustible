@@ -202,3 +202,10 @@ LOGGING = {
         },
     },
 }
+
+# =============================================================================
+# EMAIL / NOTIFICACIONES
+# =============================================================================
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "no-reply@cantv-lara.local"
+NOTIFY_EMAILS = ["admin@example.com"]  # Cambia por correos reales

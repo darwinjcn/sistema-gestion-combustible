@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from rest_framework.authtoken.views import obtain_auth_token
 from django.shortcuts import redirect
 from django.http import HttpResponse
+from combustible_api.auth_views import login_view
 
 def redirect_to_admin(request):
     """Redirige desde la raíz hacia el admin"""
@@ -94,6 +95,7 @@ def home_view(request):
                 <a href="/api/" class="btn api">📊 API REST</a>
                 <a href="/api/auth/login/" class="btn auth">🔐 Login DRF</a>
                 <a href="/api/token-auth/" class="btn">🎫 Token Auth</a>
+                <a href="/api/login/" class="btn">🔑 Login sin CSRF</a>
                 <a href="http://localhost:3000" class="btn frontend">🖥️ Aplicación Frontend (Puerto 3000)</a>
             </div>
             
@@ -127,6 +129,9 @@ urlpatterns = [
     
     # ✅ Token Authentication (para API programática)
     path('api/token-auth/', obtain_auth_token, name='api_token_auth'),
+    
+    # ✅ Login sin CSRF
+    path('api/login/', login_view, name='api_login'),
 ]
 
 # Solo incluye esto si usas archivos estáticos durante desarrollo
