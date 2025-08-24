@@ -209,3 +209,8 @@ LOGGING = {
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "no-reply@cantv-lara.local"
 NOTIFY_EMAILS = ["admin@example.com"]  # Cambia por correos reales
+
+# Redirecciones de autenticación
+LOGIN_URL = "/api/auth/login/"
+LOGIN_REDIRECT_URL = "/api/"
+LOGOUT_REDIRECT_URL = "/api/"
