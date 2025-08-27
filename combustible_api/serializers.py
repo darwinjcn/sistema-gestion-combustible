@@ -16,22 +16,16 @@ class GeneradorSerializer(serializers.ModelSerializer):
 
 
 class ConsumoSerializer(serializers.ModelSerializer):
+    # ✅ CORRECTO: PrimaryKeyRelatedField maneja la validación
     generador = serializers.PrimaryKeyRelatedField(queryset=GeneradorElectrico.objects.all())
 
     class Meta:
         model = DatosConsumo
         fields = '__all__'
 
-    def validate_generador(self, value):
-        """
-        Asegúrate de recibir solo el ID del generador o la instancia válida
-        """
-        if isinstance(value, GeneradorElectrico):
-            return value.id  # Si recibimos el objeto completo, extraemos el ID
-        elif isinstance(value, int) and GeneradorElectrico.objects.filter(id=value).exists():
-            return value  # Si es un ID válido, devuélvelo
-        else:
-            raise serializers.ValidationError("El generador especificado no existe.")
+    # ❌ ELIMINA este método: validate_generador
+    # Django REST Framework ya valida que el ID exista en el queryset
+    # Si lo sobrescribes mal, rompes el flujo
 
     def validate_nivel_actual(self, value):
         if value < 0:

@@ -93,7 +93,7 @@ def home_view(request):
             <div class="links">
                 <a href="/admin/" class="btn admin">🔧 Panel de Administración</a>
                 <a href="/api/" class="btn api">📊 API REST</a>
-                <a href="/api/auth/login/" class="btn auth">🔐 Login DRF</a>
+                <a href="/api/auth/login/" class="btn auth">🔒 Login DRF</a>
                 <a href="/api/token-auth/" class="btn">🎫 Token Auth</a>
                 <a href="/api/login/" class="btn">🔑 Login sin CSRF</a>
                 <a href="http://localhost:3000" class="btn frontend">🖥️ Aplicación Frontend (Puerto 3000)</a>
@@ -118,12 +118,13 @@ urlpatterns = [
     # Panel de administración de Django
     path('admin/', admin.site.urls),
     
-    # API REST de la aplicación
+    # API REST de la aplicación (RUTA PRINCIPAL)
     path('api/', include('combustible_api.urls')),
     
-    # ✅ REDIRECCIÓN DESDE /api/auth/ A /api/auth/login/
-    path('api/auth/', redirect_to_login, name='auth_redirect'),
-    
+    # ✅ NUEVA: Ruta alternativa para compatibilidad con frontend
+    # El frontend busca /api/combustible_api/ pero podemos mantener ambas
+    path('api/combustible_api/', include('combustible_api.urls')),
+     
     # ✅ Autenticación DRF (interfaz web para login/logout)
     path('api/auth/', include('rest_framework.urls')),
     

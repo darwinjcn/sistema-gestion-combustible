@@ -16,6 +16,34 @@ Chip,
 Typography,
 } from "@mui/material"
 
+// Configurar axios con las URLs y credenciales correctas
+axios.defaults.baseURL = 'http://localhost:8000'
+axios.defaults.withCredentials = true
+
+// Función para obtener el token CSRF
+const getCSRFToken = () => {
+  const cookies = document.cookie.split(';')
+  for (let cookie of cookies) {
+    const [name, value] = cookie.trim().split('=')
+    if (name === 'csrftoken') {
+      return value
+    }
+  }
+  return null
+}
+
+// Configurar headers por defecto
+axios.interceptors.request.use(
+  (config) => {
+    const token = getCSRFToken()
+    if (token) {
+      config.headers['X-CSRFToken'] = token
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
 const ListadoGeneradores = ({ onGeneradorSelect }) => {
 const [generadores, setGeneradores] = useState([])
 const [loading, setLoading] = useState(true)
@@ -26,9 +54,10 @@ useEffect(() => {
   const fetchGeneradores = async () => {
     try {
       console.log("🔍 Cargando generadores...")
-      const responseGeneradores = await axios.get("/api/generadores/")
       
-      // ✅ VERIFICAR QUE LA RESPUESTA SEA VÁLIDA
+      // URLs corregidas según tu configuración de Django
+      const responseGeneradores = await axios.get("/api/combustible_api/generadores/")
+      
       console.log("📊 Respuesta generadores:", responseGeneradores.data)
       
       if (!responseGeneradores.data || !Array.isArray(responseGeneradores.data)) {
@@ -38,9 +67,8 @@ useEffect(() => {
       const generadoresData = responseGeneradores.data
 
       console.log("🔍 Cargando consumos...")
-      const responseConsumos = await axios.get("/api/consumos/")
+      const responseConsumos = await axios.get("/api/combustible_api/consumos/")
       
-      // ✅ VERIFICAR QUE LA RESPUESTA SEA VÁLIDA
       console.log("📊 Respuesta consumos:", responseConsumos.data)
       
       if (!responseConsumos.data || !Array.isArray(responseConsumos.data)) {
@@ -49,7 +77,6 @@ useEffect(() => {
 
       const todosLosConsumos = Array.isArray(responseConsumos.data) ? responseConsumos.data : []
 
-      // ✅ MAPEAR CON VERIFICACIÓN ADICIONAL
       const generadoresConSuma = generadoresData.map((gen) => {
         if (!gen || typeof gen.id === 'undefined') {
           console.warn("⚠️ Generador inválido encontrado:", gen)
@@ -68,7 +95,7 @@ useEffect(() => {
           ...gen,
           consumo_total: totalConsumo,
         }
-      }).filter(Boolean) // Remover elementos null
+      }).filter(Boolean)
 
       console.log("✅ Generadores procesados:", generadoresConSuma.length)
       setGeneradores(generadoresConSuma)
@@ -80,9 +107,13 @@ useEffect(() => {
       if (err.response?.status === 500) {
         mensajeError = "Error del servidor Django - verifica la base de datos"
       } else if (err.response?.status === 401) {
-        mensajeError = "No autorizado - inicia sesión"
+        mensajeError = "No autorizado - inicia sesión primero"
+      } else if (err.response?.status === 403) {
+        mensajeError = "Sin permisos - verifica tu autenticación"
       } else if (err.message?.includes("array")) {
         mensajeError = "Formato de datos inválido del servidor"
+      } else if (err.code === 'ERR_NETWORK') {
+        mensajeError = "No se puede conectar con Django en localhost:8000"
       }
       
       setError(mensajeError)
@@ -94,7 +125,6 @@ useEffect(() => {
   fetchGeneradores()
 }, [])
 
-// ✅ FUNCIÓN MEJORADA CON VERIFICACIONES
 const handleRowClick = useCallback((generador) => {
   if (!generador || !generador.id) {
     console.warn("⚠️ Generador inválido para selección")
@@ -106,7 +136,6 @@ const handleRowClick = useCallback((generador) => {
   const nuevoGeneradorSeleccionado = generadorSeleccionado === generador.id ? null : generador.id
   setGeneradorSeleccionado(nuevoGeneradorSeleccionado)
   
-  // ✅ VERIFICACIÓN SEGURA DE LA FUNCIÓN
   if (typeof onGeneradorSelect === 'function') {
     onGeneradorSelect(nuevoGeneradorSeleccionado)
   } else {
@@ -129,7 +158,7 @@ if (error) {
       <Typography variant="h6">Error al cargar datos</Typography>
       <Typography>{error}</Typography>
       <Typography variant="caption" sx={{ mt: 1, display: "block" }}>
-        Verifica que Django esté ejecutándose en http://localhost:8000
+        Verifica que Django esté ejecutándose en http://localhost:8000 y que estés autenticado
       </Typography>
     </Alert>
   )
@@ -217,7 +246,6 @@ return (
 )
 }
 
-// ✅ DEFAULT PROPS PARA EVITAR ERRORES
 ListadoGeneradores.defaultProps = {
 onGeneradorSelect: (id) => console.log("onGeneradorSelect no proporcionado, ID:", id)
 }

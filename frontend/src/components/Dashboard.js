@@ -7,6 +7,10 @@ import ListadoGeneradores from "./ListadoGeneradores"
 import GraficoConsumo from "./GraficoConsumo"
 import { StyledCard, StyledTitle, MetricsContainer, MetricCard } from "./StyledComponents"
 
+// Configurar axios con las URLs correctas
+axios.defaults.baseURL = 'http://localhost:8000'
+axios.defaults.withCredentials = true
+
 const Dashboard = () => {
   const [generadorSeleccionado, setGeneradorSeleccionado] = useState(null)
   const [metricas, setMetricas] = useState({
@@ -19,18 +23,34 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchMetricas = async () => {
       try {
+        console.log("📊 Cargando métricas...")
+        
         const [resGeneradores, resConsumos] = await Promise.all([
-          axios.get("/api/generadores/"),
-          axios.get("/api/consumos/"),
+          axios.get("/api/combustible_api/generadores/"),
+          axios.get("/api/combustible_api/consumos/"),
         ])
+
+        console.log("Respuesta generadores:", resGeneradores.data)
+        console.log("Respuesta consumos:", resConsumos.data)
+
+        // Validar que las respuestas sean arrays
+        if (!Array.isArray(resGeneradores.data)) {
+          throw new Error("La respuesta de generadores no es un array válido")
+        }
+        
+        if (!Array.isArray(resConsumos.data)) {
+          throw new Error("La respuesta de consumos no es un array válido")
+        }
 
         const generadores = resGeneradores.data
         const consumos = resConsumos.data
 
         const totalGeneradores = generadores.length
         const generadoresActivos = generadores.filter((g) => g.estado === "activo").length
-        const consumoTotal = consumos.reduce((total, c) => total + c.consumo, 0)
-        const nivelPromedio = generadores.reduce((total, g) => total + (g.nivel_actual || 0), 0) / totalGeneradores
+        const consumoTotal = consumos.reduce((total, c) => total + (c.consumo || 0), 0)
+        const nivelPromedio = totalGeneradores > 0 
+          ? generadores.reduce((total, g) => total + (g.nivel_actual || 0), 0) / totalGeneradores
+          : 0
 
         setMetricas({
           totalGeneradores,
@@ -38,15 +58,29 @@ const Dashboard = () => {
           consumoTotal,
           nivelPromedio,
         })
+
+        console.log("✅ Métricas cargadas:", {
+          totalGeneradores,
+          generadoresActivos,
+          consumoTotal,
+          nivelPromedio
+        })
       } catch (err) {
         console.error("Error cargando métricas:", err)
+        
+        // Establecer métricas por defecto en caso de error
+        setMetricas({
+          totalGeneradores: 0,
+          generadoresActivos: 0,
+          consumoTotal: 0,
+          nivelPromedio: 0,
+        })
       }
     }
 
     fetchMetricas()
   }, [])
 
-  // ✅ USAR useCallback PARA FUNCIÓN ESTABLE
   const handleGeneradorSelect = useCallback((generadorId) => {
     console.log("Dashboard - Generador seleccionado:", generadorId)
     setGeneradorSeleccionado(generadorId)

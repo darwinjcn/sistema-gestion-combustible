@@ -1,38 +1,77 @@
-"use client"
+// src/App.js
 
-import { useCallback, useState } from "react"
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom"
-import { Container, AppBar, Toolbar, Typography, Button, Box, Divider } from "@mui/material"
-import { Home, Assessment } from "@mui/icons-material"
-import ProtectedRoute from "./components/ProtectedRoute"
-import Login from "./components/Login"
-import AlertaReal from "./components/AlertaReal"
-import IngresoDatos from "./components/IngresoDatos"
-import ListadoGeneradores from "./components/ListadoGeneradores"
-import GraficoConsumo from "./components/GraficoConsumo"
-import ReporteTecnico from "./components/ReporteTecnico"
-import Dashboard from "./components/Dashboard"
-import LogoutButton from "./components/LogoutButton"
+"use client";
+
+import { useCallback, useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
+import {
+  Container,
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  Divider,
+  CssBaseline
+} from "@mui/material";
+import { Home, Assessment, Dashboard as DashboardIcon } from "@mui/icons-material";
+
+// Componentes
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./components/Login";
+import AlertaReal from "./components/AlertaReal";
+import IngresoDatos from "./components/IngresoDatos";
+import ListadoGeneradores from "./components/ListadoGeneradores";
+import GraficoConsumo from "./components/GraficoConsumo";
+import ReporteTecnico from "./components/ReporteTecnico";
+import Dashboard from "./components/Dashboard";
+import LogoutButton from "./components/LogoutButton";
+import CargaMasiva from "./components/CargaMasiva"; // ← Nuevo componente (opcional)
 
 function AppShell() {
-  const navigate = useNavigate()
-  const [generadorSeleccionado, setGeneradorSeleccionado] = useState(null)
-  const handleGeneradorSelect = useCallback((id) => setGeneradorSeleccionado(id), [])
+  const navigate = useNavigate();
+  const [generadorSeleccionado, setGeneradorSeleccionado] = useState(null);
+
+  const handleGeneradorSelect = useCallback((id) => {
+    setGeneradorSeleccionado(id);
+  }, []);
+
   const handleLogout = useCallback(() => {
-    localStorage.removeItem("token")
-    navigate("/login", { replace: true })
-  }, [navigate])
+    localStorage.removeItem("token");
+    navigate("/login", { replace: true });
+  }, [navigate]);
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
+      <CssBaseline />
+
+      {/* Barra de navegación */}
       <AppBar position="static" sx={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 600 }}>
             ⛽ Sistema de Gestión de Combustible - CANTV Lara
           </Typography>
-          <Button color="inherit" component={Link} to="/" startIcon={<Home />} sx={{ mx: 1, borderRadius: 2 }}>
+
+          <Button
+            color="inherit"
+            component={Link}
+            to="/"
+            startIcon={<Home />}
+            sx={{ mx: 1, borderRadius: 2 }}
+          >
             Inicio
           </Button>
+
+          <Button
+            color="inherit"
+            component={Link}
+            to="/dashboard"
+            startIcon={<DashboardIcon />}
+            sx={{ mx: 1, borderRadius: 2 }}
+          >
+            Dashboard
+          </Button>
+
           <Button
             color="inherit"
             component={Link}
@@ -42,15 +81,22 @@ function AppShell() {
           >
             Reportes
           </Button>
-          <Button color="inherit" onClick={handleLogout} sx={{ ml: 1, borderRadius: 2 }}>
+
+          <Button
+            color="inherit"
+            onClick={handleLogout}
+            sx={{ ml: 1, borderRadius: 2 }}
+          >
             Cerrar sesión
           </Button>
         </Toolbar>
       </AppBar>
 
+      {/* Contenido principal */}
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Routes>
           <Route path="/login" element={<Login />} />
+
           <Route
             path="/"
             element={
@@ -69,6 +115,7 @@ function AppShell() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/dashboard"
             element={
@@ -77,6 +124,7 @@ function AppShell() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/reportes"
             element={
@@ -85,11 +133,23 @@ function AppShell() {
               </ProtectedRoute>
             }
           />
+
+          {/* Opcional: Ruta para carga masiva */}
+          {/* <Route
+            path="/carga-masiva"
+            element={
+              <ProtectedRoute>
+                <CargaMasiva />
+              </ProtectedRoute>
+            }
+          /> */}
         </Routes>
       </Container>
 
+      {/* Botón flotante de cierre de sesión (opcional) */}
       <LogoutButton />
 
+      {/* Footer */}
       <Box
         sx={{
           textAlign: "center",
@@ -107,7 +167,7 @@ function AppShell() {
         </Typography>
       </Box>
     </Box>
-  )
+  );
 }
 
 export default function App() {
@@ -115,5 +175,5 @@ export default function App() {
     <Router>
       <AppShell />
     </Router>
-  )
+  );
 }

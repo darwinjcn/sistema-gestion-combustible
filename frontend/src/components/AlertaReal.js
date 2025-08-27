@@ -7,6 +7,10 @@ import { StyledCard } from "./StyledComponents"
 
 const UMBRAL_NIVEL_BAJO = 150
 
+// Configurar axios
+axios.defaults.baseURL = 'http://localhost:8000'
+axios.defaults.withCredentials = true
+
 const AlertaReal = () => {
   const [alertas, setAlertas] = useState([])
   const [loading, setLoading] = useState(true)
@@ -14,11 +18,10 @@ const AlertaReal = () => {
   useEffect(() => {
     const checkNivelesBajos = async () => {
       try {
-        console.log("🔍 Verificando niveles de combustible...")
-        const res = await axios.get("/api/generadores/")
+        console.log("Verificando niveles de combustible...")
+        const res = await axios.get("/api/combustible_api/generadores/")
         
-        // ✅ VERIFICAR QUE LA RESPUESTA SEA VÁLIDA
-        console.log("📊 Respuesta de API generadores:", res.data)
+        console.log("Respuesta de API generadores:", res.data)
         
         if (!res.data || !Array.isArray(res.data)) {
           throw new Error("La respuesta de la API no es un array válido")
@@ -27,7 +30,6 @@ const AlertaReal = () => {
         const generadores = res.data
         const nuevasAlertas = []
 
-        // ✅ USAR for...of EN LUGAR DE for...in
         for (const gen of generadores) {
           if (gen.estado === "activo" && (gen.nivel_actual || 0) < UMBRAL_NIVEL_BAJO) {
             nuevasAlertas.push({
@@ -39,20 +41,23 @@ const AlertaReal = () => {
           }
         }
 
-        console.log("⚠️ Alertas encontradas:", nuevasAlertas.length)
+        console.log("Alertas encontradas:", nuevasAlertas.length)
         setAlertas(nuevasAlertas)
       } catch (err) {
-        console.error("❌ Error verificando niveles:", err)
+        console.error("Error verificando niveles:", err)
         
-        // Mensaje más específico según el tipo de error
         let mensajeError = "Error: No se pudo conectar con la API"
         
         if (err.response?.status === 500) {
           mensajeError = "Error: Problema en el servidor Django"
         } else if (err.response?.status === 401) {
           mensajeError = "Error: No autorizado - verifica tu sesión"
+        } else if (err.response?.status === 403) {
+          mensajeError = "Error: Sin permisos - verifica la autenticación"
         } else if (err.message?.includes("array")) {
           mensajeError = "Error: Formato de datos inválido del servidor"
+        } else if (err.code === 'ERR_NETWORK') {
+          mensajeError = "Error: No se puede conectar con Django en localhost:8000"
         }
 
         setAlertas([
@@ -77,7 +82,7 @@ const AlertaReal = () => {
     return (
       <StyledCard>
         <Typography variant="h6" sx={{ textAlign: "center", color: "#7f8c8d" }}>
-          🔍 Verificando niveles de combustible...
+          Verificando niveles de combustible...
         </Typography>
       </StyledCard>
     )
@@ -88,7 +93,7 @@ const AlertaReal = () => {
       {alertas.length > 0 ? (
         <StyledCard>
           <Typography variant="h6" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
-            ⚠️ Alertas Activas
+            Alertas Activas
             <Chip label={alertas.length} color="warning" size="small" />
           </Typography>
           {alertas.map((alerta, index) => (
@@ -123,7 +128,7 @@ const AlertaReal = () => {
         <StyledCard>
           <Alert severity="success" sx={{ borderRadius: 2 }}>
             <Typography variant="body1" sx={{ fontWeight: 500 }}>
-              ✅ Todos los generadores tienen niveles normales de combustible
+              Todos los generadores tienen niveles normales de combustible
             </Typography>
           </Alert>
         </StyledCard>
